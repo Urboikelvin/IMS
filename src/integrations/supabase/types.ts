@@ -96,6 +96,7 @@ export type Database = {
           category_id: string | null
           created_at: string
           current_balance: number
+          deleted_at: string | null
           department_id: string
           expiry_date: string | null
           id: string
@@ -109,6 +110,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           current_balance?: number
+          deleted_at?: string | null
           department_id: string
           expiry_date?: string | null
           id?: string
@@ -122,6 +124,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           current_balance?: number
+          deleted_at?: string | null
           department_id?: string
           expiry_date?: string | null
           id?: string
@@ -169,9 +172,31 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       stock_in: {
         Row: {
           created_at: string
+          deleted_at: string | null
           date: string
           expiry_date: string | null
           id: string
@@ -184,6 +209,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           date?: string
           expiry_date?: string | null
           id?: string
@@ -196,6 +222,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           date?: string
           expiry_date?: string | null
           id?: string
@@ -219,6 +246,7 @@ export type Database = {
       stock_out: {
         Row: {
           created_at: string
+          deleted_at: string | null
           date: string
           id: string
           item_id: string
@@ -230,6 +258,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           date?: string
           id?: string
           item_id: string
@@ -241,6 +270,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           date?: string
           id?: string
           item_id?: string

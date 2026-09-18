@@ -30,6 +30,29 @@ function isHeadStaffOrAbove(role: AppRole | undefined) {
   return role === "head_staff" || role === "super_admin";
 }
 
+// Rate limiting for sensitive admin actions (creating/removing users). This
+// protects against a compromised or malicious admin/super_admin session
+// hammering these endpoints — normal Supabase Auth rate limits don't cover
+// custom server functions like these at all.
+const RATE_LIMIT_WINDOW_MINUTES = 10;
+const RATE_LIMIT_MAX_ACTIONS = 10;
+
+async function enforceRateLimit(supabaseAdmin: any, userId: string, action: string) {
+  const since = new Date(Date.now() - RATE_LIMIT_WINDOW_MINUTES * 60_000).toISOString();
+  const { count, error } = await supabaseAdmin
+    .from("rate_limit_log")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("action", action)
+    .gte("created_at", since);
+  if (error) throw new Error(error.message);
+  if ((count ?? 0) >= RATE_LIMIT_MAX_ACTIONS) {
+    throw new Error(`Too many user-management actions in a short time. Please wait a few minutes and try again.`);
+  }
+  const { error: logError } = await supabaseAdmin.from("rate_limit_log").insert({ user_id: userId, action });
+  if (logError) throw new Error(logError.message);
+}
+
 export const createUserFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: CreateUserInput) => data)
@@ -50,6 +73,8 @@ export const createUserFn = createServerFn({ method: "POST" })
 
     // Service-role client - only ever imported here, never at module scope.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    await enforceRateLimit(supabaseAdmin, context.userId, "user_create");
 
     const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
@@ -88,6 +113,8 @@ export const removeUserFn = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    await enforceRateLimit(supabaseAdmin, context.userId, "user_remove");
 
     // Deletes auth.users, which cascades to profiles and user_roles. The
     // protect_last_super_admin trigger still fires during the cascade, so

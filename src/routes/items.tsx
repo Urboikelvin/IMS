@@ -108,7 +108,7 @@ function ItemsPage() {
 
   const deleteItem = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("items").delete().eq("id", id);
+      const { error } = await supabase.from("items").update({ deleted_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       await logAudit("item.delete", "items", id, null);
     },
@@ -363,7 +363,7 @@ function ItemsPage() {
                         </button>
                         <button
                           onClick={() => {
-                            if (confirm(`Delete ${item.name}? Movement history will be removed.`)) {
+                            if (confirm(`Remove ${item.name} from the active list? Its stock history is kept, and a Super Admin can restore it if needed.`)) {
                               deleteItem.mutate(item.id);
                             }
                           }}

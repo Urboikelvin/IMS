@@ -39,6 +39,7 @@ export async function fetchItems(): Promise<Item[]> {
   const { data, error } = await supabase
     .from("items")
     .select("id, name, category_id, unit, reorder_threshold, unit_price, expiry_date, current_balance, department_id")
+    .is("deleted_at", null)
     .order("name");
   if (error) throw error;
   return (data ?? []) as Item[];
@@ -69,6 +70,7 @@ export async function fetchStockIn(): Promise<Movement[]> {
   const { data, error } = await supabase
     .from("stock_in")
     .select("id, item_id, quantity, date, expiry_date, remaining_quantity, supplier, notes, logged_by, created_at")
+    .is("deleted_at", null)
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -79,6 +81,7 @@ export async function fetchStockOut(): Promise<Movement[]> {
   const { data, error } = await supabase
     .from("stock_out")
     .select("id, item_id, quantity, date, recipient, recipient_department_id, notes, logged_by, created_at")
+    .is("deleted_at", null)
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
   if (error) throw error;
