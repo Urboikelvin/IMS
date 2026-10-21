@@ -5,13 +5,14 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Field, Panel, SelectInput, Tag, TextInput } from "@/components/inventory-ui";
 import { fetchCategories, fetchItems, isLowStock } from "@/lib/inventory";
 import { useDepartments, useRole } from "@/hooks/use-session";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/stock-levels")({
   head: () => ({
     meta: [
-      { title: "Stock Levels • Maslow Inventory" },
+      { title: `Stock Levels • ${APP_NAME}` },
       { name: "description", content: "At-a-glance view of every item's current stock level." },
-      { property: "og:title", content: "Stock Levels • Maslow Inventory" },
+      { property: "og:title", content: `Stock Levels • ${APP_NAME}` },
       { property: "og:description", content: "See how much of every item is currently in stock." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

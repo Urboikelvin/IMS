@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       audit_log: {
         Row: {
+          organization_id: string | null
           action: string
           created_at: string
           details: Json
@@ -25,6 +26,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          organization_id?: string | null
           action: string
           created_at?: string
           details?: Json
@@ -34,6 +36,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          organization_id?: string | null
           action?: string
           created_at?: string
           details?: Json
@@ -42,7 +45,15 @@ export type Database = {
           id?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
@@ -75,21 +86,32 @@ export type Database = {
       }
       departments: {
         Row: {
+          organization_id: string
           created_at: string
           id: string
           name: string
         }
         Insert: {
+          organization_id?: string
           created_at?: string
           id?: string
           name: string
         }
         Update: {
+          organization_id?: string
           created_at?: string
           id?: string
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "departments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       items: {
         Row: {
@@ -150,6 +172,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      organizations: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          status: string
+          subscription_ends_on: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          status?: string
+          subscription_ends_on?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: string
+          subscription_ends_on?: string | null
+        }
+        Relationships: []
+      }
+      platform_admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -299,6 +372,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          organization_id: string
           created_at: string
           department_id: string | null
           id: string
@@ -306,6 +380,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          organization_id?: string
           created_at?: string
           department_id?: string | null
           id?: string
@@ -313,6 +388,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          organization_id?: string
           created_at?: string
           department_id?: string | null
           id?: string
@@ -320,6 +396,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_roles_department_id_fkey"
             columns: ["department_id"]
@@ -353,6 +436,22 @@ export type Database = {
       }
       get_user_department: { Args: { _user_id: string }; Returns: string }
       recalc_item_balance: { Args: { _item_id: string }; Returns: undefined }
+      is_platform_admin: { Args: never; Returns: boolean }
+      my_org_id: { Args: never; Returns: string }
+      active_org_id: { Args: never; Returns: string }
+      dept_in_my_org: { Args: { _department_id: string }; Returns: boolean }
+      shares_org_with: { Args: { _other: string }; Returns: boolean }
+      platform_org_overview: {
+        Args: never
+        Returns: {
+          org_id: string
+          user_count: number
+          department_count: number
+          item_count: number
+          movement_count_30d: number
+          last_activity: string | null
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "super_admin" | "head_staff"

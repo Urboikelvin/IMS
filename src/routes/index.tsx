@@ -12,14 +12,15 @@ import {
   isLowStock,
   type Item,
 } from "@/lib/inventory";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dashboard • Maslow Inventory" },
-      { name: "description", content: "Real-time stock levels, low-stock alerts and recent movements for Maslow." },
-      { property: "og:title", content: "Dashboard • Maslow Inventory" },
-      { property: "og:description", content: "Real-time stock levels and recent movements for Maslow." },
+      { title: `Dashboard • ${APP_NAME}` },
+      { name: "description", content: "Real-time stock levels, low-stock alerts and recent movements." },
+      { property: "og:title", content: `Dashboard • ${APP_NAME}` },
+      { property: "og:description", content: "Real-time stock levels and recent movements." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuditRouteImport } from './routes/audit'
+import { Route as DepartmentsRouteImport } from './routes/departments'
 import { Route as ItemsRouteImport } from './routes/items'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as ReportsRouteImport } from './routes/reports'
-import { Route as StockInRouteImport } from './routes/stock-in'
 import { Route as StockLevelsRouteImport } from './routes/stock-levels'
+import { Route as StockInRouteImport } from './routes/stock-in'
 import { Route as StockOutRouteImport } from './routes/stock-out'
 import { Route as UsersRouteImport } from './routes/users'
 
@@ -24,14 +26,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuditRoute = AuditRouteImport.update({
   id: '/audit',
   path: '/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const DepartmentsRoute = DepartmentsRouteImport.update({
+  id: '/departments',
+  path: '/departments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ItemsRoute = ItemsRouteImport.update({
@@ -39,19 +46,24 @@ const ItemsRoute = ItemsRouteImport.update({
   path: '/items',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StockInRoute = StockInRouteImport.update({
-  id: '/stock-in',
-  path: '/stock-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StockLevelsRoute = StockLevelsRouteImport.update({
   id: '/stock-levels',
   path: '/stock-levels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StockInRoute = StockInRouteImport.update({
+  id: '/stock-in',
+  path: '/stock-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StockOutRoute = StockOutRouteImport.update({
@@ -67,35 +79,41 @@ const UsersRoute = UsersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/audit': typeof AuditRoute
+  '/departments': typeof DepartmentsRoute
   '/items': typeof ItemsRoute
+  '/platform': typeof PlatformRoute
   '/reports': typeof ReportsRoute
-  '/stock-in': typeof StockInRoute
   '/stock-levels': typeof StockLevelsRoute
+  '/stock-in': typeof StockInRoute
   '/stock-out': typeof StockOutRoute
   '/users': typeof UsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/audit': typeof AuditRoute
+  '/departments': typeof DepartmentsRoute
   '/items': typeof ItemsRoute
+  '/platform': typeof PlatformRoute
   '/reports': typeof ReportsRoute
-  '/stock-in': typeof StockInRoute
   '/stock-levels': typeof StockLevelsRoute
+  '/stock-in': typeof StockInRoute
   '/stock-out': typeof StockOutRoute
   '/users': typeof UsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/audit': typeof AuditRoute
+  '/departments': typeof DepartmentsRoute
   '/items': typeof ItemsRoute
+  '/platform': typeof PlatformRoute
   '/reports': typeof ReportsRoute
-  '/stock-in': typeof StockInRoute
   '/stock-levels': typeof StockLevelsRoute
+  '/stock-in': typeof StockInRoute
   '/stock-out': typeof StockOutRoute
   '/users': typeof UsersRoute
 }
@@ -103,46 +121,54 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/audit'
     | '/auth'
+    | '/audit'
+    | '/departments'
     | '/items'
+    | '/platform'
     | '/reports'
-    | '/stock-in'
     | '/stock-levels'
+    | '/stock-in'
     | '/stock-out'
     | '/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/audit'
     | '/auth'
+    | '/audit'
+    | '/departments'
     | '/items'
+    | '/platform'
     | '/reports'
-    | '/stock-in'
     | '/stock-levels'
+    | '/stock-in'
     | '/stock-out'
     | '/users'
   id:
     | '__root__'
     | '/'
-    | '/audit'
     | '/auth'
+    | '/audit'
+    | '/departments'
     | '/items'
+    | '/platform'
     | '/reports'
-    | '/stock-in'
     | '/stock-levels'
+    | '/stock-in'
     | '/stock-out'
     | '/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
+  AuditRoute: typeof AuditRoute
+  DepartmentsRoute: typeof DepartmentsRoute
   ItemsRoute: typeof ItemsRoute
+  PlatformRoute: typeof PlatformRoute
   ReportsRoute: typeof ReportsRoute
-  StockInRoute: typeof StockInRoute
   StockLevelsRoute: typeof StockLevelsRoute
+  StockInRoute: typeof StockInRoute
   StockOutRoute: typeof StockOutRoute
   UsersRoute: typeof UsersRoute
 }
@@ -156,6 +182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/audit': {
       id: '/audit'
       path: '/audit'
@@ -163,11 +196,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuditRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/departments': {
+      id: '/departments'
+      path: '/departments'
+      fullPath: '/departments'
+      preLoaderRoute: typeof DepartmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/items': {
@@ -177,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ItemsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reports': {
       id: '/reports'
       path: '/reports'
@@ -184,18 +224,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stock-in': {
-      id: '/stock-in'
-      path: '/stock-in'
-      fullPath: '/stock-in'
-      preLoaderRoute: typeof StockInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/stock-levels': {
       id: '/stock-levels'
       path: '/stock-levels'
       fullPath: '/stock-levels'
       preLoaderRoute: typeof StockLevelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stock-in': {
+      id: '/stock-in'
+      path: '/stock-in'
+      fullPath: '/stock-in'
+      preLoaderRoute: typeof StockInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stock-out': {
@@ -217,12 +257,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
+  AuditRoute: AuditRoute,
+  DepartmentsRoute: DepartmentsRoute,
   ItemsRoute: ItemsRoute,
+  PlatformRoute: PlatformRoute,
   ReportsRoute: ReportsRoute,
-  StockInRoute: StockInRoute,
   StockLevelsRoute: StockLevelsRoute,
+  StockInRoute: StockInRoute,
   StockOutRoute: StockOutRoute,
   UsersRoute: UsersRoute,
 }

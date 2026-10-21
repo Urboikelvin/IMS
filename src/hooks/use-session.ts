@@ -13,46 +13,90 @@ export function useCurrentUser() {
 
 export type AppRole = "super_admin" | "head_staff" | "admin" | "staff";
 
+export type Organization = { id: string; name: string; status: "active" | "suspended" };
+
 /**
- * A person's role/department state. `role` is `null` for a real account that
- * exists but hasn't been assigned a department + role yet ("pending") — that
- * is a distinct, valid state, not an error and not the same as "staff".
+ * Who this person is and where they belong.
+ *
+ * - `role` is `null` for a real account that hasn't been given access yet
+ *   ("pending"). That is a valid state, not an error.
+ * - Every person belongs to exactly one `organization` (a client center).
+ * - `isPlatformAdmin` is the vendor-level identity that manages clients. It is
+ *   independent of any organization role.
+ *
+ * Real enforcement is always Postgres row-level security — these flags only
+ * decide which screens and controls render.
  */
 export function useRole() {
-  const { data: user } = useCurrentUser();
-  const query = useQuery({
+  const userQuery = useCurrentUser();
+  const user = userQuery.data;
+
+  const roleQuery = useQuery({
     queryKey: ["role", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_roles")
-        .select("role, department_id")
+        .select("role, department_id, organization_id")
         .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
       return data
-        ? { role: data.role as AppRole, departmentId: data.department_id as string | null }
-        : { role: null, departmentId: null };
+        ? {
+            role: data.role as AppRole,
+            departmentId: data.department_id as string | null,
+            organizationId: data.organization_id as string | null,
+          }
+        : { role: null, departmentId: null, organizationId: null };
     },
   });
 
-  const role = query.data?.role ?? null;
-  const departmentId = query.data?.departmentId ?? null;
+  const platformQuery = useQuery({
+    queryKey: ["platform-admin", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("platform_admins").select("user_id").eq("user_id", user!.id).maybeSingle();
+      if (error) throw error;
+      return data !== null;
+    },
+  });
+
+  const organizationId = roleQuery.data?.organizationId ?? null;
+  const orgQuery = useQuery({
+    queryKey: ["organization", organizationId],
+    enabled: !!organizationId,
+    queryFn: async (): Promise<Organization | null> => {
+      const { data, error } = await supabase.from("organizations").select("id, name, status").eq("id", organizationId!).maybeSingle();
+      if (error) throw error;
+      return data ? { id: data.id, name: data.name, status: data.status === "suspended" ? "suspended" : "active" } : null;
+    },
+  });
+
+  // The user query is part of "loading": without it, a hard refresh could run
+  // the role gate before the user is known and wrongly bounce people away.
+  const isLoading = userQuery.isLoading || roleQuery.isLoading || platformQuery.isLoading || orgQuery.isLoading;
+
+  const role = roleQuery.data?.role ?? null;
+  const departmentId = roleQuery.data?.departmentId ?? null;
+  const isPlatformAdmin = platformQuery.data === true;
 
   return {
     role,
     departmentId,
-    // A real account with no role/department assigned yet — waiting on a
-    // head staff / super admin to grant access.
-    isPending: !query.isLoading && query.data !== undefined && role === null,
-    // "Has write access to at least their own department." Real enforcement
-    // is always in Postgres RLS — this only gates which controls render.
+    organizationId,
+    organization: orgQuery.data ?? null,
+    isPlatformAdmin,
+    // The person's organization has been switched off by the platform owner.
+    isSuspended: orgQuery.data?.status === "suspended",
+    // A real account with no role yet — waiting for an admin to grant access.
+    isPending: !isLoading && !!user && roleQuery.data !== undefined && role === null && !isPlatformAdmin,
+    // Write access to at least their own department.
     isAdmin: role === "admin" || role === "head_staff" || role === "super_admin",
-    // Company-wide: sees/edits every department, manages user roles.
+    // Organization-wide: sees/edits every department, manages user roles.
     isHeadStaffOrAbove: role === "head_staff" || role === "super_admin",
-    // The one tier above even Head Staff: department structure itself.
+    // Top of an organization: also manages the department structure itself.
     isSuperAdmin: role === "super_admin",
-    isLoading: query.isLoading,
+    isLoading,
   };
 }
 

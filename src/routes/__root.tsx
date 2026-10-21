@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
 import { reportError } from "../lib/error-reporting";
+import { APP_NAME } from "@/lib/brand";
 
 function NotFoundComponent() {
   return (
@@ -77,10 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Maslow Inventory" },
-      { name: "description", content: "Stock control and daily issuance for Maslow operations." },
-      { property: "og:title", content: "Maslow Inventory" },
-      { property: "og:description", content: "Stock control and daily issuance for Maslow operations." },
+      { title: APP_NAME },
+      { name: "description", content: "Stock control and daily issuance for your operations." },
+      { property: "og:title", content: APP_NAME },
+      { property: "og:description", content: "Stock control and daily issuance for your operations." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },

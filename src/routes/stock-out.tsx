@@ -7,14 +7,15 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { DataTable, EmptyRow, Field, Panel, SelectInput, SubmitButton, TextInput } from "@/components/inventory-ui";
 import { errorMessage, fetchItems, fetchStockOut, logAudit } from "@/lib/inventory";
 import { useDepartments } from "@/hooks/use-session";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/stock-out")({
   head: () => ({
     meta: [
-      { title: "Stock Out • Maslow Inventory" },
+      { title: `Stock Out • ${APP_NAME}` },
       { name: "description", content: "Log daily issuance with validation that prevents negative stock balances." },
-      { property: "og:title", content: "Stock Out • Maslow Inventory" },
-      { property: "og:description", content: "Log daily issuance for Maslow inventory." },
+      { property: "og:title", content: `Stock Out • ${APP_NAME}` },
+      { property: "og:description", content: "Log daily issuance for your inventory." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

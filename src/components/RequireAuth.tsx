@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { PendingAccess } from "@/components/PendingAccess";
+import { SuspendedAccess } from "@/components/SuspendedAccess";
 import { useRole } from "@/hooks/use-session";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -21,9 +22,20 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     };
   }, [navigate]);
 
-  const { isPending, isLoading: roleLoading } = useRole();
+  const { isPending, isSuspended, isPlatformAdmin, role, isLoading } = useRole();
 
-  if (state === "loading" || (state === "ok" && roleLoading)) {
+  // A platform admin with no organization role has nothing to see outside the
+  // clients console, so send them straight there.
+  const platformOnly = isPlatformAdmin && role === null;
+  const onPlatformPath = typeof window !== "undefined" && window.location.pathname.startsWith("/platform");
+
+  useEffect(() => {
+    if (state === "ok" && !isLoading && platformOnly && !onPlatformPath) {
+      navigate({ to: "/platform", replace: true });
+    }
+  }, [state, isLoading, platformOnly, onPlatformPath, navigate]);
+
+  if (state === "loading" || isLoading || (platformOnly && !onPlatformPath)) {
     return (
       <div className="grid min-h-screen place-items-center bg-background">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Loading…</p>
@@ -31,9 +43,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     );
   }
 
-  if (state === "ok" && isPending) {
-    return <PendingAccess />;
-  }
+  // The platform owner is never locked out by a client's suspension.
+  if (isSuspended && !isPlatformAdmin) return <SuspendedAccess />;
+  if (isPending) return <PendingAccess />;
 
   return <AppShell>{children}</AppShell>;
 }

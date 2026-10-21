@@ -6,14 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { RequireAuth } from "@/components/RequireAuth";
 import { DataTable, EmptyRow, Field, Panel, SelectInput, SubmitButton, TextInput } from "@/components/inventory-ui";
 import { errorMessage, fetchItems, fetchStockIn, logAudit } from "@/lib/inventory";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/stock-in")({
   head: () => ({
     meta: [
-      { title: "Stock In • Maslow Inventory" },
+      { title: `Stock In • ${APP_NAME}` },
       { name: "description", content: "Log incoming deliveries and keep item balances updated automatically." },
-      { property: "og:title", content: "Stock In • Maslow Inventory" },
-      { property: "og:description", content: "Log incoming deliveries for Maslow inventory." },
+      { property: "og:title", content: `Stock In • ${APP_NAME}` },
+      { property: "og:description", content: "Log incoming deliveries for your inventory." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

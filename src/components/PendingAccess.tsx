@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/use-session";
+import { APP_NAME } from "@/lib/brand";
 
 export function PendingAccess() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export function PendingAccess() {
     <div className="grid min-h-screen place-items-center bg-background px-4">
       <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-8 text-center">
         <div className="mx-auto mb-4 grid size-10 place-items-center rounded-lg bg-primary font-bold text-primary-foreground">
-          M
+          {APP_NAME.charAt(0).toUpperCase()}
         </div>
         <h1 className="text-lg font-bold tracking-tight">Waiting for access</h1>
         <p className="mt-2 text-sm text-muted-foreground">

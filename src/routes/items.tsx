@@ -7,13 +7,14 @@ import { RequireRole } from "@/components/RequireRole";
 import { DataTable, EmptyRow, Field, Panel, SelectInput, SubmitButton, Tag, TextInput } from "@/components/inventory-ui";
 import { errorMessage, expiryStatus, fetchActiveBatches, fetchCategories, fetchItems, formatMoney, isLowStock, logAudit, type Batch, type Item } from "@/lib/inventory";
 import { useDepartments, useRole } from "@/hooks/use-session";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/items")({
   head: () => ({
     meta: [
-      { title: "Item Management • Maslow Inventory" },
+      { title: `Item Management • ${APP_NAME}` },
       { name: "description", content: "Create and maintain items, categories, reorder thresholds and expiry dates." },
-      { property: "og:title", content: "Item Management • Maslow Inventory" },
+      { property: "og:title", content: `Item Management • ${APP_NAME}` },
       { property: "og:description", content: "Maintain items, categories and reorder thresholds." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

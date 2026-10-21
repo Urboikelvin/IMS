@@ -8,14 +8,15 @@ import { DataTable, EmptyRow, Field, Panel, SelectInput, SubmitButton, Tag, Text
 import { errorMessage, fetchUsersWithRoles, logAudit, type UserWithRole } from "@/lib/inventory";
 import { useDepartments, type AppRole } from "@/hooks/use-session";
 import { createUserFn, removeUserFn } from "@/integrations/supabase/user-admin";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/users")({
   head: () => ({
     meta: [
-      { title: "Users • Maslow Inventory" },
+      { title: `Users • ${APP_NAME}` },
       { name: "description", content: "Manage staff and admin accounts and their access levels." },
-      { property: "og:title", content: "Users • Maslow Inventory" },
-      { property: "og:description", content: "Manage staff and admin accounts for Maslow." },
+      { property: "og:title", content: `Users • ${APP_NAME}` },
+      { property: "og:description", content: "Manage staff and admin accounts." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -116,7 +117,7 @@ function UsersPage() {
   function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!form.email.trim()) return toast.error("Email is required.");
-    if (form.password.length < 6) return toast.error("Password must be at least 6 characters.");
+    if (form.password.length < 8) return toast.error("Password must be at least 8 characters.");
     if (needsDepartment(form.role) && !form.departmentId) return toast.error("Choose a department for this role.");
     createUser.mutate();
   }
@@ -169,7 +170,7 @@ function UsersPage() {
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                minLength={6}
+                minLength={8}
                 required
               />
             </Field>

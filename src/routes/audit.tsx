@@ -4,14 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { RequireRole } from "@/components/RequireRole";
 import { DataTable, EmptyRow, Field, Panel, SelectInput, TextInput } from "@/components/inventory-ui";
 import { fetchAuditLog, fetchProfiles } from "@/lib/inventory";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/audit")({
   head: () => ({
     meta: [
-      { title: "Audit Log • Maslow Inventory" },
+      { title: `Audit Log • ${APP_NAME}` },
       { name: "description", content: "Every action taken across the platform, for Head Staff and Super Admin." },
-      { property: "og:title", content: "Audit Log • Maslow Inventory" },
-      { property: "og:description", content: "Full transparency into every change made across Maslow Inventory." },
+      { property: "og:title", content: `Audit Log • ${APP_NAME}` },
+      { property: "og:description", content: "Full transparency into every change made across your inventory." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -33,6 +34,12 @@ const ACTION_LABEL: Record<string, string> = {
   "user.create": "Created user",
   "user.role_change": "Changed access",
   "user.remove": "Removed user",
+  "department.create": "Added department",
+  "department.rename": "Renamed department",
+  "department.delete": "Deleted department",
+  "organization.create": "Organization created",
+  "organization.suspend": "Access suspended",
+  "organization.reactivate": "Access restored",
 };
 
 function actionTone(action: string) {

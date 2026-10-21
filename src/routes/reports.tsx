@@ -18,14 +18,15 @@ import {
   type Movement,
 } from "@/lib/inventory";
 import { useDepartments } from "@/hooks/use-session";
+import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/reports")({
   head: () => ({
     meta: [
-      { title: "Reports • Maslow Inventory" },
+      { title: `Reports • ${APP_NAME}` },
       { name: "description", content: "Filter stock movement by date, review usage summaries and export a full Excel report." },
-      { property: "og:title", content: "Reports • Maslow Inventory" },
-      { property: "og:description", content: "Usage summaries and Excel exports for Maslow inventory." },
+      { property: "og:title", content: `Reports • ${APP_NAME}` },
+      { property: "og:description", content: "Usage summaries and Excel exports for your inventory." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -101,7 +102,7 @@ function ReportsPage() {
     setExporting(true);
     try {
       const wb = new ExcelJS.Workbook();
-      wb.creator = "Maslow Inventory Hub";
+      wb.creator = APP_NAME;
       wb.created = new Date();
 
       // --- Sheet 1: Summary ---
