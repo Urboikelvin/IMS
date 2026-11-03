@@ -106,7 +106,7 @@ Run it once per client's user: each must see only their own organization's numbe
 
 - **Resend:** until you verify a domain, it only delivers to *your own* address. Verify one
   before onboarding real clients, or their alerts won't arrive.
-- **Product name:** the neutral name "Inventory Hub" lives in one line, `src/lib/brand.ts`.
+- **Product name:** the neutral name "KAYA" lives in one line, `src/lib/brand.ts`.
   Change it to whatever you want to sell this as. Each client's own name shows in their header.
 - **Suspension is manual** by design — nobody gets locked out by a timezone or a late
   payment. The **Renews** column flags overdue clients so you can decide.

@@ -1,4 +1,4 @@
-# Maslow Inventory Hub
+# KAYA
 
 Context:
 Build a web-based inventory management system for Maslow. This replaces a manual, spreadsheet-based process. For reference, a related business (BDTH) currently tracks inventory in Google Sheets across three tabs — Stock In, Stock Out, and Daily Issuance — with daily manual entry per item. Use that as a structural reference, but build something more robust, automated, and error-resistant for Maslow.

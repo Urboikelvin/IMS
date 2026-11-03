@@ -283,7 +283,7 @@ function ReportsPage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `maslow-report-${from}_to_${to}.xlsx`;
+      link.download = `kaya-report-${from}_to_${to}.xlsx`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {

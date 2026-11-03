@@ -15,7 +15,7 @@ Don't skip ahead — step 3 needs the URL from step 2.
 1. Go to [resend.com](https://resend.com) and sign up (free tier covers this
    easily — a few hundred emails/month for a low-stock alert use case).
 2. Once logged in, go to **API Keys** in the sidebar → **Create API Key**.
-   Give it a name like "Maslow Inventory" → copy the key it shows you
+   Give it a name like "KAYA" → copy the key it shows you
    (starts with `re_...`). You won't be able to see it again, so save it
    somewhere for a minute.
 3. **About the "from" address** — Resend won't let you send from just any
