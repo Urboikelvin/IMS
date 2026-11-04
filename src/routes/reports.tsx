@@ -13,8 +13,10 @@ import {
   fetchProfiles,
   fetchStockIn,
   fetchStockOut,
+  downloadBlob,
   formatMoney,
   isLowStock,
+  localDateString,
   type Movement,
 } from "@/lib/inventory";
 import { useDepartments } from "@/hooks/use-session";
@@ -54,7 +56,9 @@ function styleHeaderRow(row: ExcelJS.Row) {
 }
 
 function isoDaysAgo(days: number) {
-  return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return localDateString(date);
 }
 
 function ReportsPage() {
@@ -67,7 +71,7 @@ function ReportsPage() {
   const batches = useQuery({ queryKey: ["active-batches"], queryFn: fetchActiveBatches });
 
   const [from, setFrom] = useState(isoDaysAgo(30));
-  const [to, setTo] = useState(new Date().toISOString().slice(0, 10));
+  const [to, setTo] = useState(localDateString());
   const [exporting, setExporting] = useState(false);
 
   const itemById = new Map((items.data ?? []).map((i) => [i.id, i]));
@@ -79,13 +83,23 @@ function ReportsPage() {
   const insInRange = useMemo(() => (stockIn.data ?? []).filter((m) => inRange(m.date)), [stockIn.data, from, to]);
   const outsInRange = useMemo(() => (stockOut.data ?? []).filter((m) => inRange(m.date)), [stockOut.data, from, to]);
 
+  // Net movement AFTER the report's end date, per item. The item's balance today
+  // minus this is what was actually on the shelf at the end of the period.
+  const netAfterRange = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const m of stockIn.data ?? []) if (m.date > to) map.set(m.item_id, (map.get(m.item_id) ?? 0) + m.quantity);
+    for (const m of stockOut.data ?? []) if (m.date > to) map.set(m.item_id, (map.get(m.item_id) ?? 0) - m.quantity);
+    return map;
+  }, [stockIn.data, stockOut.data, to]);
+
   const summary = useMemo(() => {
     const list = items.data ?? [];
     const rows = list
       .map((item) => {
         const received = insInRange.filter((m) => m.item_id === item.id).reduce((s, m) => s + m.quantity, 0);
         const issued = outsInRange.filter((m) => m.item_id === item.id).reduce((s, m) => s + m.quantity, 0);
-        return { item, received, issued, value: issued * item.unit_price };
+        const closing = item.current_balance - (netAfterRange.get(item.id) ?? 0);
+        return { item, received, issued, closing, value: issued * item.unit_price };
       })
       .filter((row) => row.received > 0 || row.issued > 0)
       .sort((a, b) => b.issued - a.issued);
@@ -96,7 +110,7 @@ function ReportsPage() {
       totalOut: outsInRange.reduce((s, m) => s + m.quantity, 0),
       usageValue: rows.reduce((s, row) => s + row.value, 0),
     };
-  }, [items.data, insInRange, outsInRange]);
+  }, [items.data, insInRange, outsInRange, netAfterRange]);
 
   async function exportExcel() {
     setExporting(true);
@@ -114,8 +128,8 @@ function ReportsPage() {
         { header: "Unit", key: "unit", width: 10 },
         { header: "Received", key: "received", width: 12 },
         { header: "Issued", key: "issued", width: 12 },
-        { header: "Closing Balance", key: "balance", width: 16 },
-        { header: "Usage Value", key: "value", width: 16 },
+        { header: "Closing Balance (end of period)", key: "balance", width: 20 },
+        { header: "Usage Value (at current prices)", key: "value", width: 20 },
       ];
       for (const row of summary.rows) {
         const added = summarySheet.addRow({
@@ -125,7 +139,7 @@ function ReportsPage() {
           unit: row.item.unit,
           received: row.received,
           issued: row.issued,
-          balance: row.item.current_balance,
+          balance: row.closing,
           value: Number(row.value.toFixed(2)),
         });
         added.getCell("value").numFmt = "#,##0.00";
@@ -223,8 +237,8 @@ function ReportsPage() {
         { header: "Items Tracked", key: "itemCount", width: 14 },
         { header: "Received", key: "received", width: 12 },
         { header: "Issued", key: "issued", width: 12 },
-        { header: "Usage Value", key: "value", width: 16 },
-        { header: "Low Stock Items", key: "lowCount", width: 16 },
+        { header: "Usage Value (at current prices)", key: "value", width: 20 },
+        { header: "Low Stock Items (now)", key: "lowCount", width: 16 },
       ];
       for (const dept of departments.data ?? []) {
         const deptItems = (items.data ?? []).filter((i) => i.department_id === dept.id);
@@ -262,6 +276,7 @@ function ReportsPage() {
         { header: "Remaining Qty", key: "remaining", width: 14 },
       ];
       [...(batches.data ?? [])]
+        .filter((batch) => itemById.has(batch.item_id))
         .sort((a, b) => (a.expiry_date ?? "9999-99-99").localeCompare(b.expiry_date ?? "9999-99-99"))
         .forEach((batch) => {
           const item = itemById.get(batch.item_id);
@@ -280,12 +295,7 @@ function ReportsPage() {
 
       const buffer = await wb.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `kaya-report-${from}_to_${to}.xlsx`;
-      link.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(`kaya-report-${from}_to_${to}.xlsx`, blob);
     } catch (error) {
       toast.error(errorMessage(error, "Could not build the report."));
     } finally {
@@ -328,11 +338,11 @@ function ReportsPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Received" value={summary.totalIn} hint="units in" />
         <StatCard label="Issued" value={summary.totalOut} hint="units out" />
-        <StatCard label="Usage value" value={formatMoney(summary.usageValue)} />
+        <StatCard label="Usage value" value={formatMoney(summary.usageValue)} hint="at current prices" />
       </div>
 
       <Panel title="Usage by item" padded={false}>
-        <DataTable head={["Item", "Received", "Issued", "Balance", "Usage value"]}>
+        <DataTable head={["Item", "Received", "Issued", "Balance at end", "Usage value"]}>
           {summary.rows.length === 0 ? (
             <EmptyRow colSpan={5}>No movement in this period.</EmptyRow>
           ) : (
@@ -342,7 +352,7 @@ function ReportsPage() {
                 <td className="px-6 py-3 font-mono text-success">+{row.received}</td>
                 <td className="px-6 py-3 font-mono text-destructive">−{row.issued}</td>
                 <td className="px-6 py-3 font-mono">
-                  {row.item.current_balance} {row.item.unit}
+                  {row.closing} {row.item.unit}
                 </td>
                 <td className="px-6 py-3 text-right font-mono text-muted-foreground">{formatMoney(row.value)}</td>
               </tr>

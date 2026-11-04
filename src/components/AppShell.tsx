@@ -17,7 +17,7 @@ const NAV: { to: string; label: string; roles: AppRole[] }[] = [
   { to: "/departments", label: "Departments", roles: ["super_admin"] },
 ];
 
-const PLATFORM_ENTRY: { to: string; label: string; roles: AppRole[] } = { to: "/platform", label: "Clients", roles: [] };
+const PLATFORM_ENTRY: { to: string; label: string; roles: AppRole[] } = { to: "/platform", label: "Platform", roles: [] };
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();

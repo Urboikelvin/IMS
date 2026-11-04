@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { RequireAuth } from "@/components/RequireAuth";
 import { DataTable, EmptyRow, Field, Panel, SelectInput, SubmitButton, TextInput } from "@/components/inventory-ui";
-import { errorMessage, fetchItems, fetchStockIn, logAudit } from "@/lib/inventory";
+import { errorMessage, fetchItems, fetchStockIn, localDateString, logAudit } from "@/lib/inventory";
 import { APP_NAME } from "@/lib/brand";
 
 export const Route = createFileRoute("/stock-in")({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/stock-in")({
   ),
 });
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => localDateString();
 
 function StockInPage() {
   const queryClient = useQueryClient();

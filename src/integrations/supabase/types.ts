@@ -122,6 +122,7 @@ export type Database = {
           department_id: string
           expiry_date: string | null
           id: string
+          low_stock_notified: boolean
           name: string
           reorder_threshold: number
           unit: string
@@ -136,6 +137,7 @@ export type Database = {
           department_id: string
           expiry_date?: string | null
           id?: string
+          low_stock_notified?: boolean
           name: string
           reorder_threshold?: number
           unit?: string
@@ -150,6 +152,7 @@ export type Database = {
           department_id?: string
           expiry_date?: string | null
           id?: string
+          low_stock_notified?: boolean
           name?: string
           reorder_threshold?: number
           unit?: string
@@ -370,6 +373,154 @@ export type Database = {
           },
         ]
       }
+      stock_out_allocations: {
+        Row: {
+          created_at: string
+          id: string
+          quantity: number
+          stock_in_id: string
+          stock_out_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quantity: number
+          stock_in_id: string
+          stock_out_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quantity?: number
+          stock_in_id?: string
+          stock_out_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_out_allocations_stock_in_id_fkey"
+            columns: ["stock_in_id"]
+            isOneToOne: false
+            referencedRelation: "stock_in"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_out_allocations_stock_out_id_fkey"
+            columns: ["stock_out_id"]
+            isOneToOne: false
+            referencedRelation: "stock_out"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          extended: boolean
+          id: string
+          months_covered: number
+          note: string | null
+          organization_id: string
+          paid_on: string
+          recorded_by: string | null
+          reference: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          extended?: boolean
+          id?: string
+          months_covered?: number
+          note?: string | null
+          organization_id: string
+          paid_on?: string
+          recorded_by?: string | null
+          reference?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          extended?: boolean
+          id?: string
+          months_covered?: number
+          note?: string | null
+          organization_id?: string
+          paid_on?: string
+          recorded_by?: string | null
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_payments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_billing: {
+        Row: {
+          billing_notes: string | null
+          monthly_fee: number
+          organization_id: string
+          plan_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_notes?: string | null
+          monthly_fee?: number
+          organization_id: string
+          plan_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_notes?: string | null
+          monthly_fee?: number
+          organization_id?: string
+          plan_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_billing_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          kind: string
+          organization_id: string | null
+          organization_name: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          kind: string
+          organization_id?: string | null
+          organization_name?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          kind?: string
+          organization_id?: string | null
+          organization_name?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           organization_id: string
@@ -452,6 +603,19 @@ export type Database = {
           last_activity: string | null
         }[]
       }
+      record_client_payment: {
+        Args: {
+          _amount: number
+          _extend?: boolean
+          _months: number
+          _note?: string
+          _org_id: string
+          _paid_on: string
+          _reference?: string
+        }
+        Returns: string
+      }
+      void_client_payment: { Args: { _payment_id: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "staff" | "super_admin" | "head_staff"

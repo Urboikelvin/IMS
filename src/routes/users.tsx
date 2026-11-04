@@ -236,7 +236,6 @@ function UsersPage() {
                           ))}
                         </SelectInput>
                       )}
-                      {!user.role && !isSelf ? <p className="mt-1 text-xs text-warning-strong">Pending — no access yet</p> : null}
                     </td>
                     <td className="px-6 py-3">
                       {isSelf ? (
@@ -265,7 +264,7 @@ function UsersPage() {
                             Apply
                           </button>
                         ) : null}
-                        {!isSelf && user.role ? (
+                        {!isSelf ? (
                           <button
                             onClick={() => {
                               if (confirm(`Remove ${user.name || user.email}? They will lose access immediately.`)) {

@@ -294,6 +294,8 @@ export const createOrganizationFn = createServerFn({ method: "POST" })
       // Roll back everything this attempt created.
       if (adminUserId) await supabaseAdmin.auth.admin.deleteUser(adminUserId);
       await supabaseAdmin.from("departments").delete().eq("organization_id", org.id);
+      // A failed set-up must not leave a "client joined" entry in the platform activity feed.
+      await supabaseAdmin.from("platform_events").delete().eq("organization_id", org.id);
       await supabaseAdmin.from("organizations").delete().eq("id", org.id);
       throw error;
     }
